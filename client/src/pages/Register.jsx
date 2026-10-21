@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { User, Mail, Lock, UserPlus } from 'lucide-react';
+import { register, reset } from '../features/authSlice';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +14,25 @@ const Register = () => {
 
   const { name, email, password } = formData;
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (user) {
+      navigate('/dashboard');
+    }
+
+    dispatch(reset());
+  }, [user, isError, message, navigate, dispatch]);
+
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -20,8 +42,8 @@ const Register = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log('Register Data:', formData);
-    // Aage yahan Redux API call aayegi
+    const userData = { name, email, password };
+    dispatch(register(userData)); // Backend API call
   };
 
   return (
@@ -94,10 +116,15 @@ const Register = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="flex items-center justify-center w-full py-2 mt-4 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none"
+            disabled={isLoading}
+            className="flex items-center justify-center w-full py-2 mt-4 text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none disabled:opacity-50"
           >
-            <UserPlus className="w-5 h-5 mr-2" />
-            Register
+            {isLoading ? 'Loading...' : (
+              <>
+                <UserPlus className="w-5 h-5 mr-2" />
+                Register
+              </>
+            )}
           </button>
         </form>
 

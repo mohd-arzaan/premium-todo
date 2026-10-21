@@ -11,12 +11,12 @@ router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Saari fields bharo' });
+      return res.status(400).json({ message: 'Please fill in all fields' });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(400).json({ message: 'Email is already registered' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -44,34 +44,30 @@ router.post('/register', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 1. Check fields
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email aur password dono bharo' });
+      return res.status(400).json({ message: 'Please provide email and password' });
     }
 
-    // 2. User dhundo
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Galat email ya password' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // 3. Password match karo
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Galat email ya password' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // 4. Token banao
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
-    // 5. Response bhejo
     res.status(200).json({
       token,
       user: {
@@ -84,4 +80,5 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
 module.exports = router;

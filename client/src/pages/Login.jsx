@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { Mail, Lock, LogIn } from 'lucide-react';
+import { login, reset } from '../features/authSlice';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +12,28 @@ const Login = () => {
   });
 
   const { email, password } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Redux se data nikaalo
+  const { user, isLoading, isError, message } = useSelector(
+    (state) => state.auth
+  );
+
+  // Agar error aaye ya login ho jaye toh check karo
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    // Agar user login hai, toh dashboard pe bhej do
+    if (user) {
+      navigate('/dashboard'); 
+    }
+
+    dispatch(reset());
+  }, [user, isError, message, navigate, dispatch]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -19,8 +44,8 @@ const Login = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log('Login Data:', formData);
-    // Aage yahan Redux API call aayegi
+    const userData = { email, password };
+    dispatch(login(userData)); // Redux action call
   };
 
   return (
@@ -74,10 +99,15 @@ const Login = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="flex items-center justify-center w-full py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none"
+            disabled={isLoading}
+            className="flex items-center justify-center w-full py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none disabled:opacity-50"
           >
-            <LogIn className="w-5 h-5 mr-2" />
-            Login
+            {isLoading ? 'Loading...' : (
+              <>
+                <LogIn className="w-5 h-5 mr-2" />
+                Login
+              </>
+            )}
           </button>
         </form>
 
