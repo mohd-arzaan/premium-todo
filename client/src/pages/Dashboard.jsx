@@ -1,14 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Trash2 } from 'lucide-react';
+import { LogOut, Trash2, Circle, CheckCircle } from 'lucide-react';
 import { logout } from '../features/authSlice';
-import { getTasks, deleteTask, reset } from '../features/taskSlice';
-import TaskForm from '../components/TaskForm'; // Import added
+import { getTasks, deleteTask, updateTask, reset } from '../features/taskSlice';
+import TaskForm from '../components/TaskForm';
+import TaskFilters from '../components/TaskFilters';
+import Stats from '../components/Stats'; // Naya Import
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const { tasks, isLoading, isError, message } = useSelector((state) => state.task);
+
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('All');
+  const [sort, setSort] = useState('Newest');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -34,6 +40,35 @@ const Dashboard = () => {
     navigate('/login');
   };
 
+  const toggleComplete = (task) => {
+    dispatch(updateTask({ id: task._id, isCompleted: !task.isCompleted }));
+  };
+
+  let processedTasks = [...tasks];
+
+  if (search) {
+    processedTasks = processedTasks.filter((task) =>
+      task.title.toLowerCase().includes(search.toLowerCase()) || 
+      (task.description && task.description.toLowerCase().includes(search.toLowerCase()))
+    );
+  }
+
+  if (filter === 'Active') {
+    processedTasks = processedTasks.filter((task) => !task.isCompleted);
+  } else if (filter === 'Completed') {
+    processedTasks = processedTasks.filter((task) => task.isCompleted);
+  } else if (filter === 'High') {
+    processedTasks = processedTasks.filter((task) => task.priority === 'High');
+  }
+
+  if (sort === 'Newest') {
+    processedTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } else if (sort === 'Oldest') {
+    processedTasks.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  } else if (sort === 'A-Z') {
+    processedTasks.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
   if (isLoading) {
     return <div className="text-white text-center mt-10">Loading tasks...</div>;
   }
@@ -42,7 +77,6 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
         
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">My Tasks</h1>
@@ -57,36 +91,58 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Task Form Component */}
+        {/* Stats Component Add kiya */}
+        <Stats tasks={tasks} />
+
         <TaskForm />
 
-        {/* Task List */}
+        <TaskFilters 
+          search={search} 
+          setSearch={setSearch} 
+          filter={filter} 
+          setFilter={setFilter} 
+          sort={sort} 
+          setSort={setSort} 
+        />
+
         <div className="space-y-4">
-          {tasks.length === 0 ? (
+          {processedTasks.length === 0 ? (
             <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 text-center">
-              <p className="text-gray-400">No tasks yet. Start by adding a new task.</p>
+              <p className="text-gray-400">No tasks found matching your criteria.</p>
             </div>
           ) : (
-            tasks.map((task) => (
+            processedTasks.map((task) => (
               <div
                 key={task._id}
                 className="bg-gray-800 p-4 rounded-lg border border-gray-700 flex items-center justify-between"
               >
-                <div>
-                  <h3 className={`text-lg font-semibold ${task.isCompleted ? 'line-through text-gray-500' : ''}`}>
-                    {task.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm">{task.description}</p>
-                  <div className="flex gap-2 mt-2">
-                    <span className="text-xs px-2 py-1 bg-gray-700 rounded-full">{task.priority}</span>
-                    <span className="text-xs px-2 py-1 bg-gray-700 rounded-full">{task.category}</span>
+                <div className="flex items-center gap-4">
+                  <button onClick={() => toggleComplete(task)}>
+                    {task.isCompleted ? (
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                    ) : (
+                      <Circle className="w-6 h-6 text-gray-400 hover:text-white" />
+                    )}
+                  </button>
+
+                  <div>
+                    <h3 className={`text-lg font-semibold ${task.isCompleted ? 'line-through text-gray-500' : ''}`}>
+                      {task.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm">{task.description}</p>
+                    <div className="flex gap-2 mt-2">
+                      <span className="text-xs px-2 py-1 bg-gray-700 rounded-full">{task.priority}</span>
+                      <span className="text-xs px-2 py-1 bg-gray-700 rounded-full">{task.category}</span>
+                    </div>
                   </div>
                 </div>
+                
                 <button
                   onClick={() => dispatch(deleteTask(task._id))}
-                  className="p-2 text-red-500 hover:bg-gray-700 rounded-lg transition"
+                  className="flex items-center gap-2 px-3 py-1 text-sm text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4" />
+                  Delete
                 </button>
               </div>
             ))
