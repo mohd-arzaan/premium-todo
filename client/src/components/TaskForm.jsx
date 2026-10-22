@@ -1,8 +1,10 @@
 import { useState, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Plus, ChevronDown, Check } from 'lucide-react';
+import { Plus, ChevronDown, Check, Calendar } from 'lucide-react';
 import { Listbox, Transition } from '@headlessui/react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css'; // Datepicker CSS
 import { addTask } from '../features/taskSlice';
 
 const priorities = [
@@ -17,23 +19,25 @@ const categories = [
 ];
 
 const TaskForm = () => {
-  const [formData, setFormData] = useState({ title: '', description: '', priority: 'Medium', category: 'Personal' });
-  const { title, description, priority, category } = formData;
+  const [formData, setFormData] = useState({ 
+    title: '', description: '', priority: 'Medium', category: 'Personal', dueDate: null 
+  });
+  const { title, description, priority, category, dueDate } = formData;
   const dispatch = useDispatch();
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
   const onSubmit = (e) => {
     e.preventDefault();
     if (!title) return toast.error('Please enter a task title');
-    dispatch(addTask({ title, description, priority, category }));
-    setFormData({ title: '', description: '', priority: 'Medium', category: 'Personal' });
+    dispatch(addTask({ title, description, priority, category, dueDate }));
+    setFormData({ title: '', description: '', priority: 'Medium', category: 'Personal', dueDate: null });
   };
 
   const selectedPriority = priorities.find((p) => p.id === priority);
   const selectedCategory = categories.find((c) => c.id === category);
 
   return (
-    // Shadow aur backdrop-blur badha diya hai real glass ke liye
     <form onSubmit={onSubmit} className="bg-white/30 backdrop-blur-2xl p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-6 space-y-3 relative z-30">
       <input type="text" name="title" value={title} onChange={onChange} placeholder="What needs to be done?"
         className="w-full p-3 bg-white/50 border border-white/60 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium placeholder-gray-500" required />
@@ -91,6 +95,20 @@ const TaskForm = () => {
             </Transition>
           </div>
         </Listbox>
+      </div>
+
+      {/* Date Picker */}
+      <div className="relative w-full">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
+          <Calendar className="w-4 h-4 text-gray-500" />
+        </div>
+        <DatePicker
+          selected={dueDate ? new Date(dueDate) : null}
+          onChange={(date) => setFormData({ ...formData, dueDate: date })}
+          placeholderText="Set a due date (optional)"
+          className="w-full p-3 pl-10 bg-white/50 border border-white/60 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-500 cursor-pointer"
+          dateFormat="dd/MM/yyyy"
+        />
       </div>
 
       <button type="submit" className="flex items-center justify-center w-full py-3 mt-2 text-white bg-gray-900 rounded-2xl hover:bg-black shadow-lg shadow-gray-900/20 transition-all font-semibold relative z-30">

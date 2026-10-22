@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Trash2, Circle, CheckCircle } from 'lucide-react';
+import { LogOut, Trash2, Circle, CheckCircle, Edit, CalendarDays } from 'lucide-react'; // CalendarDays import kiya
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '../features/authSlice';
 import { getTasks, deleteTask, updateTask, reset } from '../features/taskSlice';
 import TaskForm from '../components/TaskForm';
 import TaskFilters from '../components/TaskFilters';
 import Stats from '../components/Stats';
+import EditTaskModal from '../components/EditTaskModal';
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -15,6 +16,10 @@ const Dashboard = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
   const [sort, setSort] = useState('Newest');
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -27,6 +32,11 @@ const Dashboard = () => {
 
   const onLogout = () => { dispatch(logout()); navigate('/login'); };
   const toggleComplete = (task) => dispatch(updateTask({ id: task._id, isCompleted: !task.isCompleted }));
+
+  const openEditModal = (task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
 
   let processedTasks = [...tasks];
   if (search) processedTasks = processedTasks.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()) || (t.description && t.description.toLowerCase().includes(search.toLowerCase())));
@@ -75,25 +85,46 @@ const Dashboard = () => {
                     <div>
                       <h3 className={`text-base font-bold ${task.isCompleted ? 'line-through text-gray-400' : 'text-gray-900'}`}>{task.title}</h3>
                       {task.description && <p className="text-gray-500 text-xs mt-0.5">{task.description}</p>}
-                      <div className="flex gap-2 mt-2">
+                      
+                      <div className="flex gap-2 mt-2 items-center flex-wrap">
                         <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md ${
                           task.priority === 'High' ? 'bg-red-100/80 text-red-700' :
                           task.priority === 'Medium' ? 'bg-orange-100/80 text-orange-700' :
                           'bg-green-100/80 text-green-700'
                         }`}>{task.priority}</span>
+                        
                         <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-1 bg-gray-200/60 text-gray-700 rounded-md">{task.category}</span>
+                        
+                        {/* Due Date Badge */}
+                        {task.dueDate && (
+                          <span className="text-[10px] font-bold px-2 py-1 bg-blue-100/80 text-blue-700 rounded-md flex items-center gap-1">
+                            <CalendarDays className="w-3 h-3" />
+                            {new Date(task.dueDate).toLocaleDateString('en-GB')}
+                          </span>
+                        )}
                       </div>
+
                     </div>
                   </div>
-                  <button onClick={() => dispatch(deleteTask(task._id))} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50/50 rounded-xl transition-colors">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => openEditModal(task)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50/50 rounded-xl transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => dispatch(deleteTask(task._id))} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50/50 rounded-xl transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
                 </motion.div>
               ))
             )}
           </AnimatePresence>
         </div>
       </div>
+
+      <EditTaskModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} task={selectedTask} />
+      
     </div>
   );
 };
