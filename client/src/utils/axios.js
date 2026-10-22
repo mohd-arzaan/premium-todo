@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', // Hamara backend URL
+  baseURL: 'https://premium-todo.onrender.com/api', // Localhost se Render URL par shift kiya
 });
 
 export default api;
