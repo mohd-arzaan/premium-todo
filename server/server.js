@@ -5,7 +5,11 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors());
+// CORS ko configure karo (production URL ke liye)
+app.use(cors({
+  origin: "*", // Abhi ke liye sabhi origins allow kar rahe hain
+  credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -15,6 +19,7 @@ app.get('/', (req, res) => {
 // Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
+
 const taskRoutes = require('./routes/tasks');
 app.use('/api/tasks', taskRoutes);
 
