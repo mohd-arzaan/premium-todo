@@ -1,107 +1,102 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronDown, Check } from 'lucide-react';
+import { Listbox, Transition } from '@headlessui/react';
 import { addTask } from '../features/taskSlice';
 
-const TaskForm = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: 'Medium',
-    category: 'Personal',
-  });
+const priorities = [
+  { id: 'Low', name: 'Low Priority' },
+  { id: 'Medium', name: 'Medium Priority' },
+  { id: 'High', name: 'High Priority' },
+];
+const categories = [
+  { id: 'Personal', name: 'Personal' },
+  { id: 'Work', name: 'Work' },
+  { id: 'Study', name: 'Study' },
+];
 
+const TaskForm = () => {
+  const [formData, setFormData] = useState({ title: '', description: '', priority: 'Medium', category: 'Personal' });
   const { title, description, priority, category } = formData;
   const dispatch = useDispatch();
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const onSubmit = (e) => {
     e.preventDefault();
-    
-    if (!title) {
-      toast.error('Please enter a task title');
-      return;
-    }
-
-    const taskData = { title, description, priority, category };
-    dispatch(addTask(taskData));
-    
-    // Form reset karo
-    setFormData({
-      title: '',
-      description: '',
-      priority: 'Medium',
-      category: 'Personal',
-    });
+    if (!title) return toast.error('Please enter a task title');
+    dispatch(addTask({ title, description, priority, category }));
+    setFormData({ title: '', description: '', priority: 'Medium', category: 'Personal' });
   };
 
+  const selectedPriority = priorities.find((p) => p.id === priority);
+  const selectedCategory = categories.find((c) => c.id === category);
+
   return (
-    <form onSubmit={onSubmit} className="bg-gray-800 p-6 rounded-lg border border-gray-700 mb-8 space-y-4">
-      <h2 className="text-xl font-bold mb-4">Add New Task</h2>
+    // Shadow aur backdrop-blur badha diya hai real glass ke liye
+    <form onSubmit={onSubmit} className="bg-white/30 backdrop-blur-2xl p-5 rounded-3xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-6 space-y-3 relative z-30">
+      <input type="text" name="title" value={title} onChange={onChange} placeholder="What needs to be done?"
+        className="w-full p-3 bg-white/50 border border-white/60 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all font-medium placeholder-gray-500" required />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Title */}
-        <input
-          type="text"
-          name="title"
-          value={title}
-          onChange={onChange}
-          placeholder="Task title..."
-          className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-          required
-        />
+      <input type="text" name="description" value={description} onChange={onChange} placeholder="Add a note (optional)"
+        className="w-full p-3 bg-white/50 border border-white/60 rounded-2xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all placeholder-gray-500" />
+      
+      <div className="flex gap-2 relative z-40">
+        <Listbox value={priority} onChange={(val) => setFormData({ ...formData, priority: val })}>
+          <div className="relative w-full">
+            <Listbox.Button className="relative w-full cursor-pointer bg-white/50 border border-white/60 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800 transition-all">
+              <span className="block truncate">{selectedPriority?.name}</span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </span>
+            </Listbox.Button>
+            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+              <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white/90 backdrop-blur-xl py-1 text-sm shadow-xl border border-white/50">
+                {priorities.map((option) => (
+                  <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-100/50 text-orange-900' : 'text-gray-900'}`} value={option.id}>
+                    {({ selected }) => (
+                      <>
+                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{option.name}</span>
+                        {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-500"><Check className="h-4 w-4" /></span>}
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
 
-        {/* Description */}
-        <input
-          type="text"
-          name="description"
-          value={description}
-          onChange={onChange}
-          placeholder="Description (optional)..."
-          className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-        />
-
-        {/* Priority */}
-        <select
-          name="priority"
-          value={priority}
-          onChange={onChange}
-          className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-        >
-          <option value="Low">Low Priority</option>
-          <option value="Medium">Medium Priority</option>
-          <option value="High">High Priority</option>
-        </select>
-
-        {/* Category */}
-        <select
-          name="category"
-          value={category}
-          onChange={onChange}
-          className="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-        >
-          <option value="Personal">Personal</option>
-          <option value="Work">Work</option>
-          <option value="Study">Study</option>
-        </select>
+        <Listbox value={category} onChange={(val) => setFormData({ ...formData, category: val })}>
+          <div className="relative w-full">
+            <Listbox.Button className="relative w-full cursor-pointer bg-white/50 border border-white/60 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800 transition-all">
+              <span className="block truncate">{selectedCategory?.name}</span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              </span>
+            </Listbox.Button>
+            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+              <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white/90 backdrop-blur-xl py-1 text-sm shadow-xl border border-white/50">
+                {categories.map((option) => (
+                  <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-100/50 text-orange-900' : 'text-gray-900'}`} value={option.id}>
+                    {({ selected }) => (
+                      <>
+                        <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{option.name}</span>
+                        {selected && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-orange-500"><Check className="h-4 w-4" /></span>}
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
       </div>
 
-      <button
-        type="submit"
-        className="flex items-center justify-center w-full py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none"
-      >
-        <Plus className="w-5 h-5 mr-2" />
-        Add Task
+      <button type="submit" className="flex items-center justify-center w-full py-3 mt-2 text-white bg-gray-900 rounded-2xl hover:bg-black shadow-lg shadow-gray-900/20 transition-all font-semibold relative z-30">
+        <Plus className="w-5 h-5 mr-2" /> Add Task
       </button>
     </form>
   );
 };
-
 export default TaskForm;

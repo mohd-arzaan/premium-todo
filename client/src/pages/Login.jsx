@@ -3,121 +3,79 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { Mail, Lock, LogIn } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { login, reset } from '../features/authSlice';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const { email, password } = formData;
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user, isLoading, isError, message } = useSelector((state) => state.auth);
 
-  // Redux se data nikaalo
-  const { user, isLoading, isError, message } = useSelector(
-    (state) => state.auth
-  );
-
-  // Agar error aaye ya login ho jaye toh check karo
   useEffect(() => {
-    if (isError) {
-      toast.error(message);
-    }
-
-    // Agar user login hai, toh dashboard pe bhej do
-    if (user) {
-      navigate('/dashboard'); 
-    }
-
+    if (isError) toast.error(message);
+    if (user) navigate('/dashboard');
     dispatch(reset());
   }, [user, isError, message, navigate, dispatch]);
 
-  const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const onSubmit = (e) => {
     e.preventDefault();
-    const userData = { email, password };
-    dispatch(login(userData)); // Redux action call
+    dispatch(login({ email, password }));
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <div className="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-lg">
-        
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
-          <p className="mt-2 text-sm text-gray-400">Login to manage your tasks</p>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-sm p-8 bg-white/70 backdrop-blur-xl border border-white/40 rounded-3xl shadow-[0_8px_32px_0_rgba(31,38,135,0.07)]"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-extrabold text-gray-900">Welcome Back</h2>
+          <p className="mt-2 text-sm text-gray-500">Login to continue</p>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          {/* Email */}
+        <form onSubmit={onSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300">Email</label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                 <Mail className="w-5 h-5 text-gray-400" />
               </div>
               <input
-                type="email"
-                name="email"
-                value={email}
-                onChange={onChange}
-                className="w-full py-2 pl-10 pr-4 text-white bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-                placeholder="you@example.com"
-                required
+                type="email" name="email" value={email} onChange={onChange}
+                className="w-full py-3 pl-12 pr-4 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                placeholder="Email address" required
               />
             </div>
           </div>
 
-          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-300">Password</label>
-            <div className="relative mt-1">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                 <Lock className="w-5 h-5 text-gray-400" />
               </div>
               <input
-                type="password"
-                name="password"
-                value={password}
-                onChange={onChange}
-                className="w-full py-2 pl-10 pr-4 text-white bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
-                placeholder="••••••••"
-                required
+                type="password" name="password" value={password} onChange={onChange}
+                className="w-full py-3 pl-12 pr-4 text-gray-900 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                placeholder="Password" required
               />
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
-            type="submit"
-            disabled={isLoading}
-            className="flex items-center justify-center w-full py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none disabled:opacity-50"
+            type="submit" disabled={isLoading}
+            className="flex items-center justify-center w-full py-3 mt-2 text-white bg-orange-500 rounded-2xl hover:bg-orange-600 shadow-lg shadow-orange-500/30 transition-all font-semibold disabled:opacity-50"
           >
-            {isLoading ? 'Loading...' : (
-              <>
-                <LogIn className="w-5 h-5 mr-2" />
-                Login
-              </>
-            )}
+            {isLoading ? 'Loading...' : <><LogIn className="w-5 h-5 mr-2" /> Login</>}
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-400">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-400 hover:underline">
-            Sign up
-          </Link>
+        <p className="text-sm text-center text-gray-500 mt-6">
+          Don't have an account? <Link to="/register" className="text-orange-500 font-semibold hover:underline">Sign up</Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

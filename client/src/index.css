@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #f8fafc; /* Clean, premium off-white */
+    /* Ekdum subtle dot pattern taaki glass effect float karta dikhe */
+    background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: #0f172a;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+}
