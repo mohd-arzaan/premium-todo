@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 /* =========================================================
    BASE + BACKGROUND  (Graph Paper)
    Solid warm sand colour + notebook jaisi grid lines.
-   Koi gradient, glow ya animation nahi.
    - bade squares : 96px
    - chhote squares: 24px
    ========================================================= */
@@ -26,6 +26,18 @@
     color: #1c1917;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* --- DARK MODE GRAPH PAPER --- */
+  html.dark body {
+    background-color: #121212; /* Dark charcoal background */
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    color: #f8fafc;
   }
 
   ::selection {
@@ -40,6 +52,10 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(92, 72, 40, 0.3) transparent;
+  }
+  
+  html.dark * {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
   }
 }
 
@@ -167,4 +183,58 @@
 
 .react-datepicker__triangle {
   display: none !important;
+}
+
+/* =========================================================
+   DATEPICKER DARK THEME
+   ========================================================= */
+html.dark .react-datepicker {
+  background-color: rgba(30, 30, 30, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .react-datepicker__current-month {
+  color: #f8fafc !important;
+}
+
+html.dark .react-datepicker__day-name {
+  color: #94a3b8 !important;
+}
+
+html.dark .react-datepicker__navigation-icon::before {
+  border-color: #fb923c !important;
+}
+
+html.dark .react-datepicker__navigation:hover {
+  background-color: rgba(249, 115, 22, 0.15);
+}
+
+html.dark .react-datepicker__day {
+  color: #cbd5e1 !important;
+}
+
+html.dark .react-datepicker__day--outside-month {
+  color: #475569 !important;
+}
+
+html.dark .react-datepicker__day:hover {
+  background-color: rgba(249, 115, 22, 0.2) !important;
+  color: #f97316 !important;
+}
+
+html.dark .react-datepicker__day--today {
+  color: #fb923c !important;
+  box-shadow: inset 0 0 0 1.5px rgba(251, 146, 60, 0.5);
+}
+
+html.dark .react-datepicker__day--keyboard-selected {
+  background-color: rgba(249, 115, 22, 0.2) !important;
+  color: #f97316 !important;
+}
+
+html.dark .react-datepicker__day--selected,
+html.dark .react-datepicker__day--selected:hover {
+  background: #ea580c !important;
+  color: #fff !important;
 }
