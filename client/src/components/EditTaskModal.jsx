@@ -51,34 +51,34 @@ const EditTaskModal = ({ isOpen, setIsOpen, task }) => {
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={() => setIsOpen(false)}>
         <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/30 dark:bg-black/60 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl bg-white/90 backdrop-blur-2xl p-6 text-left align-middle shadow-xl transition-all border border-white/50">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-2xl p-6 text-left align-middle shadow-xl transition-all border border-white/50 dark:border-gray-700">
                 
                 <div className="flex justify-between items-center mb-4">
-                  <Dialog.Title as="h3" className="text-lg font-extrabold text-gray-900">Edit Task</Dialog.Title>
-                  <button onClick={() => setIsOpen(false)} className="p-1 text-gray-500 hover:bg-gray-100 rounded-full transition"><X className="w-5 h-5" /></button>
+                  <Dialog.Title as="h3" className="text-lg font-extrabold text-gray-900 dark:text-white">Edit Task</Dialog.Title>
+                  <button onClick={() => setIsOpen(false)} className="p-1 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition"><X className="w-5 h-5" /></button>
                 </div>
 
                 <form onSubmit={onSubmit} className="space-y-4 relative z-50">
-                  <input type="text" name="title" value={title} onChange={onChange} placeholder="Task title" className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" required />
-                  <input type="text" name="description" value={description} onChange={onChange} placeholder="Description (optional)" className="w-full p-3 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                  <input type="text" name="title" value={title} onChange={onChange} placeholder="Task title" className="w-full p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium" required />
+                  <input type="text" name="description" value={description} onChange={onChange} placeholder="Description (optional)" className="w-full p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500" />
 
                   <div className="flex gap-2 relative z-50">
                     <Listbox value={priority} onChange={(val) => setFormData({ ...formData, priority: val })}>
                       <div className="relative w-full">
-                        <Listbox.Button className="relative w-full cursor-pointer bg-white border border-gray-200 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800">
+                        <Listbox.Button className="relative w-full cursor-pointer bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800 dark:text-gray-200">
                           <span className="block truncate">{selectedPriority?.name}</span>
                           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><ChevronDown className="h-4 w-4 text-gray-400" /></span>
                         </Listbox.Button>
                         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                          <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-lg border border-gray-100">
+                          <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white dark:bg-gray-800 py-1 text-sm shadow-lg border border-gray-100 dark:border-gray-700">
                             {priorities.map((option) => (
-                              <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-50 text-orange-900' : 'text-gray-900'}`} value={option.id}>
+                              <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-50 dark:bg-orange-500/20 text-orange-900 dark:text-orange-300' : 'text-gray-900 dark:text-gray-200'}`} value={option.id}>
                                 {({ selected }) => (
                                   <>
                                     <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{option.name}</span>
@@ -94,14 +94,14 @@ const EditTaskModal = ({ isOpen, setIsOpen, task }) => {
 
                     <Listbox value={category} onChange={(val) => setFormData({ ...formData, category: val })}>
                       <div className="relative w-full">
-                        <Listbox.Button className="relative w-full cursor-pointer bg-white border border-gray-200 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800">
+                        <Listbox.Button className="relative w-full cursor-pointer bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl py-2.5 pl-3 pr-10 text-left shadow-sm focus:outline-none text-sm font-medium text-gray-800 dark:text-gray-200">
                           <span className="block truncate">{selectedCategory?.name}</span>
                           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"><ChevronDown className="h-4 w-4 text-gray-400" /></span>
                         </Listbox.Button>
                         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                          <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-sm shadow-lg border border-gray-100">
+                          <Listbox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white dark:bg-gray-800 py-1 text-sm shadow-lg border border-gray-100 dark:border-gray-700">
                             {categories.map((option) => (
-                              <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-50 text-orange-900' : 'text-gray-900'}`} value={option.id}>
+                              <Listbox.Option key={option.id} className={({ active }) => `relative cursor-pointer select-none py-2.5 pl-10 pr-4 ${active ? 'bg-orange-50 dark:bg-orange-500/20 text-orange-900 dark:text-orange-300' : 'text-gray-900 dark:text-gray-200'}`} value={option.id}>
                                 {({ selected }) => (
                                   <>
                                     <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>{option.name}</span>
@@ -116,21 +116,20 @@ const EditTaskModal = ({ isOpen, setIsOpen, task }) => {
                     </Listbox>
                   </div>
 
-                  {/* Date Picker Edit */}
                   <div className="relative w-full">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
-                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     </div>
                     <DatePicker
                       selected={dueDate}
                       onChange={(date) => setFormData({ ...formData, dueDate: date })}
                       placeholderText="Set a due date (optional)"
-                      className="w-full p-3 pl-10 bg-white border border-gray-200 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full p-3 pl-10 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                       dateFormat="dd/MM/yyyy"
                     />
                   </div>
 
-                  <button type="submit" className="w-full py-3 mt-2 text-white bg-gray-900 rounded-xl hover:bg-black transition-all font-semibold">Save Changes</button>
+                  <button type="submit" className="w-full py-3 mt-2 text-white bg-gray-900 dark:bg-orange-600 rounded-xl hover:bg-black dark:hover:bg-orange-500 transition-all font-semibold">Save Changes</button>
                 </form>
               </Dialog.Panel>
             </Transition.Child>
