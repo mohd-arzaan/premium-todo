@@ -12,37 +12,40 @@ const Register = () => {
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, isLoading, isError, message } = useSelector((state) => state.auth);
+  const { isLoading, isError, message } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isError) {
       toast.error(message);
+      dispatch(reset());
     }
 
-    // YEH CHANGE KIYA HAI: Agar register success (user present) ho jaye
-    if (user) {
-      toast.success('Account created successfully! Please login.');
-      dispatch(reset()); // Auth state clear karo
-      navigate('/login'); // Login page pe bhej do
-    }
-
-    // Component unmount hone par reset
     return () => {
       dispatch(reset());
     };
-  }, [user, isError, message, navigate, dispatch]);
+  }, [isError, message, dispatch]);
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   
   const onSubmit = (e) => {
     e.preventDefault();
-    dispatch(register({ name, email, password }));
+    
+    dispatch(register({ name, email, password }))
+      .unwrap()
+      .then(() => {
+        dispatch(reset()); // State clear
+        toast.success('Account created! Please login.');
+        navigate('/login'); // Seedha login page
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-sm p-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-2xl border border-white/70 dark:border-gray-700 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+        className="w-full max-w-sm p-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-2xl border border-white/70 dark:border-gray-700 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-colors duration-300"
       >
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Create Account</h2>
