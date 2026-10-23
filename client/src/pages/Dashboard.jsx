@@ -5,14 +5,13 @@ import { LogOut, Trash2, Circle, CheckCircle2, Pencil, CalendarDays, ClipboardLi
 import { motion, AnimatePresence } from 'framer-motion';
 import { logout } from '../features/authSlice';
 import { getTasks, deleteTask, updateTask, reset } from '../features/taskSlice';
-import { toggleTheme } from '../features/uiSlice'; // Naya import
+import { toggleTheme } from '../features/uiSlice';
 import TaskForm from '../components/TaskForm';
 import TaskFilters from '../components/TaskFilters';
 import Stats from '../components/Stats';
 import EditTaskModal from '../components/EditTaskModal';
 
 /* ---------- helpers ---------- */
-
 const getGreeting = () => {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -56,11 +55,11 @@ const SkeletonCard = () => (
 );
 
 /* ---------- component ---------- */
-
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const { tasks, isLoading, isError, message } = useSelector((state) => state.task);
-  const { isDarkMode } = useSelector((state) => state.ui); // Theme state
+  const { isDarkMode } = useSelector((state) => state.ui);
+  
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All');
   const [sort, setSort] = useState('Newest');
@@ -102,8 +101,8 @@ const Dashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-start justify-center py-8 px-4">
-        <div className="w-full max-w-md space-y-3">
-          <div className="h-12 w-1/2 rounded-2xl bg-white/40 dark:bg-gray-800/40 animate-pulse mb-6" />
+        <div className="w-full max-w-6xl space-y-3">
+          <div className="h-12 w-1/4 rounded-2xl bg-white/40 dark:bg-gray-800/40 animate-pulse mb-6" />
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
@@ -113,168 +112,137 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center py-8 px-4 bg-transparent overflow-y-auto transition-colors duration-300">
-      <div className="w-full max-w-md pb-20">
+    <div className="min-h-screen flex items-start justify-center py-8 px-4 md:px-8 bg-transparent overflow-y-auto transition-colors duration-300">
+      {/* Desktop container width */}
+      <div className="w-full max-w-6xl pb-20">
 
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center text-lg font-extrabold shadow-lg shadow-orange-500/30">
+        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-orange-500/30">
               {initial}
             </div>
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-xs font-medium transition-colors">{getGreeting()}</p>
-              <h1 className="text-xl font-extrabold text-gray-900 dark:text-white leading-tight transition-colors">{user?.name}</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium transition-colors">{getGreeting()}</p>
+              <h1 className="text-2xl font-extrabold text-gray-900 dark:text-white leading-tight transition-colors">{user?.name}</h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={() => dispatch(toggleTheme())}
-              aria-label="Toggle theme"
-              className="p-2.5 bg-white/40 dark:bg-gray-800/60 backdrop-blur-md rounded-full text-gray-700 dark:text-yellow-400 shadow-sm border border-white/60 dark:border-gray-700 hover:bg-white/60 dark:hover:bg-gray-700 transition"
-            >
+          <div className="flex items-center gap-3">
+            <button onClick={() => dispatch(toggleTheme())} className="p-3 bg-white/40 dark:bg-gray-800/60 backdrop-blur-md rounded-full text-gray-700 dark:text-yellow-400 shadow-sm border border-white/60 dark:border-gray-700 hover:bg-white/60 dark:hover:bg-gray-700 transition">
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-
-            <button
-              onClick={onLogout}
-              aria-label="Logout"
-              className="p-2.5 bg-white/40 dark:bg-gray-800/60 backdrop-blur-md rounded-full text-gray-500 dark:text-gray-400 shadow-sm border border-white/60 dark:border-gray-700 hover:bg-red-50/70 dark:hover:bg-red-500/20 hover:text-red-500 transition"
-            >
+            <button onClick={onLogout} className="p-3 bg-white/40 dark:bg-gray-800/60 backdrop-blur-md rounded-full text-gray-500 dark:text-gray-400 shadow-sm border border-white/60 dark:border-gray-700 hover:bg-red-50/70 dark:hover:bg-red-500/20 hover:text-red-500 transition">
               <LogOut className="w-5 h-5" />
             </button>
           </div>
         </motion.div>
 
+        {/* Stats - Grid layout for desktop */}
         <Stats tasks={tasks} />
-        <TaskForm />
-        <TaskFilters search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} />
 
-        {/* List heading */}
-        {!hasNoTasksAtAll && (
-          <div className="flex items-baseline justify-between mt-6 mb-3 px-1">
-            <h2 className="text-sm font-bold text-gray-800 dark:text-gray-200 transition-colors">Your tasks</h2>
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors">
-              {pendingCount} pending · {processedTasks.length} shown
-            </span>
+        {/* Desktop Grid Layout: Left Form, Right Tasks */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+          
+          {/* Left Column: Form (Takes 4/12 space) */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-8">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Create Task</h2>
+              <TaskForm />
+            </div>
           </div>
-        )}
 
-        {/* Task list */}
-        <div className={`space-y-3 ${hasNoTasksAtAll ? 'mt-6' : ''}`}>
-          <AnimatePresence mode="popLayout">
-            {processedTasks.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl py-10 px-6 rounded-3xl border border-dashed border-gray-300/80 dark:border-gray-700 text-center transition-colors"
-              >
-                <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-white/60 dark:bg-gray-800/60 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-colors">
-                  {hasNoTasksAtAll ? <ClipboardList className="w-6 h-6" /> : <SearchX className="w-6 h-6" />}
-                </div>
-                <p className="text-gray-800 dark:text-gray-200 font-bold text-sm transition-colors">
-                  {hasNoTasksAtAll ? 'No tasks yet' : 'No matching tasks'}
-                </p>
-                <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 transition-colors">
-                  {hasNoTasksAtAll
-                    ? 'Add your first task using the form above.'
-                    : 'Try changing your search or filters.'}
-                </p>
-              </motion.div>
-            ) : (
-              processedTasks.map((task) => {
-                const p = priorityStyles[task.priority] || priorityStyles.Low;
-                const due = task.dueDate ? getDueInfo(task.dueDate, task.isCompleted) : null;
+          {/* Right Column: Filters + Tasks (Takes 8/12 space) */}
+          <div className="lg:col-span-8">
+            <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl p-6 rounded-3xl border border-white/70 dark:border-gray-700">
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 sm:mb-0">Your Tasks</h2>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-700/50 px-3 py-1 rounded-lg">
+                  {pendingCount} pending · {processedTasks.length} shown
+                </span>
+              </div>
 
-                return (
-                  <motion.div
-                    key={task._id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, x: -24 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                    className={`group relative overflow-hidden bg-white/40 dark:bg-gray-800/40 backdrop-blur-2xl py-4 pl-5 pr-3 rounded-3xl border border-white/70 dark:border-gray-700 shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex items-start justify-between gap-2 hover:bg-white/60 dark:hover:bg-gray-800/60 hover:shadow-[0_8px_28px_rgb(0,0,0,0.06)] transition-all ${
-                      task.isCompleted ? 'opacity-70' : ''
-                    }`}
-                  >
-                    {/* Priority accent bar */}
-                    <span className={`absolute left-0 top-4 bottom-4 w-1 rounded-r-full ${task.isCompleted ? 'bg-gray-300 dark:bg-gray-600' : p.bar}`} />
+              <TaskFilters search={search} setSearch={setSearch} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} />
 
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <button
-                        onClick={() => toggleComplete(task)}
-                        aria-label={task.isCompleted ? 'Mark as active' : 'Mark as completed'}
-                        className="shrink-0 mt-0.5"
-                      >
-                        {task.isCompleted ? (
-                          <CheckCircle2 className="w-6 h-6 text-green-500" />
-                        ) : (
-                          <Circle className="w-6 h-6 text-gray-300 dark:text-gray-600 hover:text-orange-500 transition-colors" />
-                        )}
-                      </button>
-
-                      <div className="min-w-0 flex-1">
-                        <h3 className={`text-[15px] font-bold leading-snug break-words transition-colors ${task.isCompleted ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
-                          {task.title}
-                        </h3>
-                        {task.description && (
-                          <p className="text-gray-500 dark:text-gray-400 text-xs mt-1 line-clamp-2 break-words transition-colors">{task.description}</p>
-                        )}
-
-                        <div className="flex gap-1.5 mt-2.5 items-center flex-wrap">
-                          <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-lg bg-white/70 dark:bg-gray-700/50 border border-white/80 dark:border-gray-600 ${task.isCompleted ? 'text-gray-400 dark:text-gray-500' : p.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${task.isCompleted ? 'bg-gray-300 dark:bg-gray-600' : p.dot}`} />
-                            {task.priority}
-                          </span>
-
-                          <span className="text-[11px] font-semibold px-2 py-1 bg-gray-200/50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 rounded-lg transition-colors">
-                            {task.category}
-                          </span>
-
-                          {due && (
-                            <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg inline-flex items-center gap-1 transition-colors ${due.style}`}>
-                              <CalendarDays className="w-3 h-3" />
-                              {due.label}
-                            </span>
-                          )}
-                        </div>
+              <div className="space-y-3 mt-6">
+                <AnimatePresence mode="popLayout">
+                  {processedTasks.length === 0 ? (
+                    <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl py-12 px-6 rounded-3xl border border-dashed border-gray-300/80 dark:border-gray-700 text-center transition-colors">
+                      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/60 dark:bg-gray-800/60 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                        {hasNoTasksAtAll ? <ClipboardList className="w-7 h-7" /> : <SearchX className="w-7 h-7" />}
                       </div>
-                    </div>
+                      <p className="text-gray-800 dark:text-gray-200 font-bold text-lg">
+                        {hasNoTasksAtAll ? 'No tasks yet' : 'No matching tasks'}
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        {hasNoTasksAtAll ? 'Add your first task using the form.' : 'Try changing your search or filters.'}
+                      </p>
+                    </motion.div>
+                  ) : (
+                    processedTasks.map((task) => {
+                      const p = priorityStyles[task.priority] || priorityStyles.Low;
+                      const due = task.dueDate ? getDueInfo(task.dueDate, task.isCompleted) : null;
 
-                    {/* Actions */}
-                    <div className="flex items-center shrink-0 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => openEditModal(task)}
-                        aria-label="Edit task"
-                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-500/10 rounded-xl transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => dispatch(deleteTask(task._id))}
-                        aria-label="Delete task"
-                        className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50/60 dark:hover:bg-red-500/10 rounded-xl transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })
-            )}
-          </AnimatePresence>
+                      return (
+                        <motion.div
+                          key={task._id}
+                          layout
+                          initial={{ opacity: 0, scale: 0.96 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, x: -24 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                          className={`group relative overflow-hidden bg-white/40 dark:bg-gray-800/40 backdrop-blur-2xl py-4 pl-6 pr-4 rounded-2xl border border-white/70 dark:border-gray-700 shadow-[0_4px_20px_rgb(0,0,0,0.03)] flex items-start justify-between gap-4 hover:bg-white/60 dark:hover:bg-gray-800/60 hover:shadow-[0_8px_28px_rgb(0,0,0,0.06)] transition-all ${task.isCompleted ? 'opacity-70' : ''}`}
+                        >
+                          <span className={`absolute left-0 top-4 bottom-4 w-1.5 rounded-r-full ${task.isCompleted ? 'bg-gray-300 dark:bg-gray-600' : p.bar}`} />
+
+                          <div className="flex items-start gap-4 min-w-0 flex-1">
+                            <button onClick={() => toggleComplete(task)} className="shrink-0 mt-0.5">
+                              {task.isCompleted ? <CheckCircle2 className="w-6 h-6 text-green-500" /> : <Circle className="w-6 h-6 text-gray-300 dark:text-gray-600 hover:text-orange-500 transition-colors" />}
+                            </button>
+
+                            <div className="min-w-0 flex-1">
+                              <h3 className={`text-[16px] font-bold leading-snug break-words ${task.isCompleted ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                                {task.title}
+                              </h3>
+                              {task.description && <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 line-clamp-2 break-words">{task.description}</p>}
+
+                              <div className="flex gap-2 mt-3 items-center flex-wrap">
+                                <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-white/70 dark:bg-gray-700/50 border border-white/80 dark:border-gray-600 ${task.isCompleted ? 'text-gray-400 dark:text-gray-500' : p.text}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${task.isCompleted ? 'bg-gray-300 dark:bg-gray-600' : p.dot}`} />
+                                  {task.priority}
+                                </span>
+                                <span className="text-[11px] font-semibold px-2.5 py-1 bg-gray-200/50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 rounded-lg">
+                                  {task.category}
+                                </span>
+                                {due && (
+                                  <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg inline-flex items-center gap-1 ${due.style}`}>
+                                    <CalendarDays className="w-3.5 h-3.5" />
+                                    {due.label}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center shrink-0 opacity-80 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                            <button onClick={() => openEditModal(task)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50/60 dark:hover:bg-blue-500/10 rounded-xl transition-colors">
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => dispatch(deleteTask(task._id))} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50/60 dark:hover:bg-red-500/10 rounded-xl transition-colors">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      );
+                    })
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
       <EditTaskModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} task={selectedTask} />
     </div>
   );
